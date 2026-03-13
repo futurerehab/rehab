@@ -1,0 +1,255 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoavaliação de Humor</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#f7f7f7;
+color:#222;
+display:flex;
+justify-content:center;
+padding:40px 20px;
+}
+
+.container{
+max-width:650px;
+width:100%;
+background:white;
+padding:40px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+h1{
+font-size:26px;
+font-weight:600;
+margin-bottom:10px;
+}
+
+p.subtitle{
+color:#666;
+margin-bottom:30px;
+}
+
+.progress{
+height:6px;
+background:#eee;
+border-radius:20px;
+overflow:hidden;
+margin-bottom:30px;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:#4f46e5;
+transition:0.3s;
+}
+
+.question{
+margin-bottom:28px;
+padding-bottom:20px;
+border-bottom:1px solid #eee;
+}
+
+.question p{
+font-weight:500;
+margin-bottom:10px;
+}
+
+.options label{
+display:block;
+margin-bottom:6px;
+cursor:pointer;
+font-size:14px;
+color:#444;
+}
+
+button{
+margin-top:20px;
+background:#4f46e5;
+border:none;
+color:white;
+padding:14px 18px;
+font-size:15px;
+border-radius:8px;
+cursor:pointer;
+transition:0.2s;
+width:100%;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.result{
+margin-top:25px;
+padding:20px;
+border-radius:10px;
+background:#f3f4ff;
+font-weight:500;
+line-height:1.5;
+}
+
+.footer{
+margin-top:20px;
+font-size:12px;
+color:#888;
+text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Autoavaliação de Humor</h1>
+<p class="subtitle">Responda pensando nas últimas duas semanas.</p>
+
+<div class="progress">
+<div class="progress-bar" id="progress"></div>
+</div>
+
+<form id="quiz">
+<div id="questions"></div>
+<button type="button" onclick="calculate()">Ver resultado</button>
+</form>
+
+<div id="result"></div>
+
+<div class="footer">
+Este teste é apenas informativo e não substitui avaliação profissional.
+</div>
+
+</div>
+
+<script>
+
+const perguntas = [
+"Tenho me sentido triste ou para baixo.",
+"Tenho perdido interesse em atividades que gostava.",
+"Tenho me sentido sem energia.",
+"Tenho dormido muito ou pouco.",
+"Tenho me sentido sem esperança.",
+"Dificuldade para me concentrar.",
+"Sinto que tudo exige muito esforço.",
+"Sinto culpa ou inutilidade.",
+"Evito contato social.",
+"Fico irritado com facilidade.",
+"Dificuldade em tomar decisões.",
+"Tenho chorado com frequência.",
+"Sinto ansiedade constante.",
+"Mudança no apetite.",
+"Perda de motivação.",
+"Sinto falta de propósito.",
+"Pensamentos negativos sobre mim.",
+"Dificuldade em sentir alegria.",
+"Dificuldade para iniciar tarefas.",
+"Cansaço frequente.",
+"Dificuldade para relaxar.",
+"Sensação de vazio.",
+"Sinto-me sobrecarregado.",
+"Pessimismo sobre o futuro.",
+"Menos interesse em socializar.",
+"Dificuldade em aproveitar momentos.",
+"Sinto que as coisas não vão melhorar.",
+"Dificuldade em levantar pela manhã.",
+"Perdi interesse em hobbies.",
+"Sinto-me emocionalmente esgotado."
+];
+
+const container = document.getElementById("questions");
+const progress = document.getElementById("progress");
+
+perguntas.forEach((p,i)=>{
+
+let div = document.createElement("div");
+div.className="question";
+
+div.innerHTML = `
+<p>${i+1}. ${p}</p>
+
+<div class="options">
+<label><input type="radio" name="q${i}" value="0" onclick="update()"> Nunca</label>
+<label><input type="radio" name="q${i}" value="1" onclick="update()"> Raramente</label>
+<label><input type="radio" name="q${i}" value="2" onclick="update()"> Frequentemente</label>
+<label><input type="radio" name="q${i}" value="3" onclick="update()"> Quase sempre</label>
+</div>
+`;
+
+container.appendChild(div);
+
+});
+
+function update(){
+
+let answered = 0;
+
+for(let i=0;i<30;i++){
+if(document.querySelector(`input[name="q${i}"]:checked`)){
+answered++;
+}
+}
+
+progress.style.width = (answered/30*100) + "%";
+
+}
+
+function calculate(){
+
+let total = 0;
+
+for(let i=0;i<30;i++){
+
+let r = document.querySelector(`input[name="q${i}"]:checked`);
+
+if(r){
+total += parseInt(r.value);
+}
+
+}
+
+let texto="";
+
+if(total<=20){
+texto="Poucos sinais de sofrimento emocional.";
+}
+else if(total<=45){
+texto="Alguns sinais de alerta emocional.";
+}
+else if(total<=65){
+texto="Possíveis sinais de sofrimento emocional.";
+}
+else{
+texto="Nível elevado de sintomas. Considere procurar ajuda profissional.";
+}
+
+document.getElementById("result").innerHTML =
+`<div class="result">
+Pontuação: <strong>${total}</strong><br><br>
+${texto}
+</div>`;
+
+}
+
+</script>
+
+</body>
+</html>
+```
