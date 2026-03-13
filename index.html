@@ -4,45 +4,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Autoavaliação de Humor</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 
 *{
-box-sizing:border-box;
 margin:0;
 padding:0;
+box-sizing:border-box;
+font-family:Inter, sans-serif;
 }
 
 body{
-font-family:'Inter',sans-serif;
-background:#f7f7f7;
-color:#222;
+background:linear-gradient(135deg,#eef2ff,#f8fafc);
+min-height:100vh;
 display:flex;
+align-items:center;
 justify-content:center;
-padding:40px 20px;
+padding:30px;
 }
 
-.container{
-max-width:650px;
-width:100%;
+.card{
 background:white;
-padding:40px;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,0.05);
+width:100%;
+max-width:620px;
+padding:35px;
+border-radius:16px;
+box-shadow:0 15px 40px rgba(0,0,0,0.08);
 }
 
 h1{
 font-size:26px;
-font-weight:600;
-margin-bottom:10px;
+margin-bottom:6px;
 }
 
-p.subtitle{
+.subtitle{
 color:#666;
-margin-bottom:30px;
+margin-bottom:25px;
+font-size:14px;
 }
 
 .progress{
@@ -50,65 +52,74 @@ height:6px;
 background:#eee;
 border-radius:20px;
 overflow:hidden;
-margin-bottom:30px;
+margin-bottom:25px;
 }
 
-.progress-bar{
+.bar{
 height:100%;
 width:0%;
-background:#4f46e5;
-transition:0.3s;
+background:#6366f1;
+transition:.3s;
 }
 
 .question{
 margin-bottom:28px;
-padding-bottom:20px;
-border-bottom:1px solid #eee;
 }
 
-.question p{
+.question h3{
+font-size:16px;
+margin-bottom:12px;
 font-weight:500;
-margin-bottom:10px;
 }
 
-.options label{
+.option{
 display:block;
-margin-bottom:6px;
+padding:10px 14px;
+border:1px solid #e5e7eb;
+border-radius:8px;
+margin-bottom:8px;
 cursor:pointer;
+transition:.2s;
 font-size:14px;
-color:#444;
+}
+
+.option:hover{
+background:#f1f5f9;
+}
+
+.option input{
+margin-right:8px;
 }
 
 button{
-margin-top:20px;
-background:#4f46e5;
+width:100%;
+padding:14px;
+background:#6366f1;
 border:none;
 color:white;
-padding:14px 18px;
 font-size:15px;
-border-radius:8px;
+border-radius:10px;
 cursor:pointer;
-transition:0.2s;
-width:100%;
+margin-top:10px;
+transition:.2s;
 }
 
 button:hover{
-opacity:0.9;
+opacity:.9;
 }
 
 .result{
-margin-top:25px;
-padding:20px;
+margin-top:20px;
+padding:18px;
+background:#eef2ff;
 border-radius:10px;
-background:#f3f4ff;
-font-weight:500;
-line-height:1.5;
+font-size:14px;
 }
 
 .footer{
-margin-top:20px;
-font-size:12px;
-color:#888;
+margin-top:15px;
+font-size:11px;
+color:#777;
 text-align:center;
 }
 
@@ -117,89 +128,88 @@ text-align:center;
 
 <body>
 
-<div class="container">
+<div class="card">
 
 <h1>Autoavaliação de Humor</h1>
 <p class="subtitle">Responda pensando nas últimas duas semanas.</p>
 
 <div class="progress">
-<div class="progress-bar" id="progress"></div>
+<div class="bar" id="bar"></div>
 </div>
 
 <form id="quiz">
 <div id="questions"></div>
-<button type="button" onclick="calculate()">Ver resultado</button>
+
+<button type="button" onclick="calc()">Ver resultado</button>
 </form>
 
 <div id="result"></div>
 
-<div class="footer">
-Este teste é apenas informativo e não substitui avaliação profissional.
-</div>
+<p class="footer">
+Este teste é apenas informativo e não substitui avaliação profissional para sintomas de :contentReference[oaicite:0]{index=0}.
+</p>
 
 </div>
 
 <script>
 
-const perguntas = [
-"Tenho me sentido triste ou para baixo.",
-"Tenho perdido interesse em atividades que gostava.",
-"Tenho me sentido sem energia.",
-"Tenho dormido muito ou pouco.",
-"Tenho me sentido sem esperança.",
-"Dificuldade para me concentrar.",
-"Sinto que tudo exige muito esforço.",
-"Sinto culpa ou inutilidade.",
-"Evito contato social.",
-"Fico irritado com facilidade.",
-"Dificuldade em tomar decisões.",
-"Tenho chorado com frequência.",
-"Sinto ansiedade constante.",
-"Mudança no apetite.",
-"Perda de motivação.",
-"Sinto falta de propósito.",
-"Pensamentos negativos sobre mim.",
-"Dificuldade em sentir alegria.",
-"Dificuldade para iniciar tarefas.",
-"Cansaço frequente.",
-"Dificuldade para relaxar.",
-"Sensação de vazio.",
-"Sinto-me sobrecarregado.",
-"Pessimismo sobre o futuro.",
-"Menos interesse em socializar.",
-"Dificuldade em aproveitar momentos.",
-"Sinto que as coisas não vão melhorar.",
-"Dificuldade em levantar pela manhã.",
-"Perdi interesse em hobbies.",
-"Sinto-me emocionalmente esgotado."
+const perguntas=[
+"Tenho me sentido triste ou para baixo",
+"Tenho perdido interesse em atividades",
+"Tenho me sentido sem energia",
+"Tenho dormido muito ou pouco",
+"Tenho me sentido sem esperança",
+"Dificuldade de concentração",
+"Sinto que tudo exige esforço",
+"Sinto culpa ou inutilidade",
+"Evito contato social",
+"Irrito-me facilmente",
+"Dificuldade para decisões",
+"Choro com frequência",
+"Sinto ansiedade constante",
+"Mudança no apetite",
+"Perda de motivação",
+"Sinto falta de propósito",
+"Pensamentos negativos sobre mim",
+"Dificuldade em sentir alegria",
+"Dificuldade para iniciar tarefas",
+"Cansaço frequente",
+"Dificuldade para relaxar",
+"Sensação de vazio",
+"Sinto-me sobrecarregado",
+"Pessimismo sobre o futuro",
+"Menos interesse social",
+"Dificuldade em aproveitar momentos",
+"Sinto que nada melhora",
+"Dificuldade em levantar",
+"Perdi interesse em hobbies",
+"Sinto-me esgotado"
 ];
 
-const container = document.getElementById("questions");
-const progress = document.getElementById("progress");
+const qDiv=document.getElementById("questions");
+const bar=document.getElementById("bar");
 
 perguntas.forEach((p,i)=>{
 
-let div = document.createElement("div");
-div.className="question";
+let d=document.createElement("div");
+d.className="question";
 
-div.innerHTML = `
-<p>${i+1}. ${p}</p>
+d.innerHTML=`
+<h3>${i+1}. ${p}</h3>
 
-<div class="options">
-<label><input type="radio" name="q${i}" value="0" onclick="update()"> Nunca</label>
-<label><input type="radio" name="q${i}" value="1" onclick="update()"> Raramente</label>
-<label><input type="radio" name="q${i}" value="2" onclick="update()"> Frequentemente</label>
-<label><input type="radio" name="q${i}" value="3" onclick="update()"> Quase sempre</label>
-</div>
+<label class="option"><input type="radio" name="q${i}" value="0" onclick="progress()">Nunca</label>
+<label class="option"><input type="radio" name="q${i}" value="1" onclick="progress()">Raramente</label>
+<label class="option"><input type="radio" name="q${i}" value="2" onclick="progress()">Frequentemente</label>
+<label class="option"><input type="radio" name="q${i}" value="3" onclick="progress()">Quase sempre</label>
 `;
 
-container.appendChild(div);
+qDiv.appendChild(d);
 
 });
 
-function update(){
+function progress(){
 
-let answered = 0;
+let answered=0;
 
 for(let i=0;i<30;i++){
 if(document.querySelector(`input[name="q${i}"]:checked`)){
@@ -207,49 +217,38 @@ answered++;
 }
 }
 
-progress.style.width = (answered/30*100) + "%";
+bar.style.width=(answered/30*100)+"%";
 
 }
 
-function calculate(){
+function calc(){
 
-let total = 0;
+let total=0;
 
 for(let i=0;i<30;i++){
 
-let r = document.querySelector(`input[name="q${i}"]:checked`);
+let r=document.querySelector(`input[name="q${i}"]:checked`);
 
 if(r){
-total += parseInt(r.value);
+total+=parseInt(r.value);
 }
 
 }
 
-let texto="";
+let text="";
 
 if(total<=20){
-texto="Poucos sinais de sofrimento emocional.";
+text="Poucos sinais de sofrimento emocional.";
 }
 else if(total<=45){
-texto="Alguns sinais de alerta emocional.";
+text="Alguns sinais de alerta emocional.";
 }
 else if(total<=65){
-texto="Possíveis sinais de sofrimento emocional.";
+text="Possíveis sinais de sofrimento emocional.";
 }
 else{
-texto="Nível elevado de sintomas. Considere procurar ajuda profissional.";
+text="Nível elevado de sintomas. Considere procurar ajuda profissional.";
 }
 
-document.getElementById("result").innerHTML =
-`<div class="result">
-Pontuação: <strong>${total}</strong><br><br>
-${texto}
-</div>`;
-
-}
-
-</script>
-
-</body>
-</html>
+document.g
 ```
