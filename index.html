@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Autoavaliação de Humor</title>
+<title>Teste de Humor</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -18,21 +19,21 @@ font-family:Inter, sans-serif;
 }
 
 body{
-background:linear-gradient(135deg,#eef2ff,#f8fafc);
-min-height:100vh;
+height:100vh;
 display:flex;
 align-items:center;
 justify-content:center;
-padding:30px;
+background:linear-gradient(135deg,#6366f1,#8b5cf6);
+padding:20px;
 }
 
 .card{
 background:white;
 width:100%;
-max-width:620px;
-padding:35px;
-border-radius:16px;
-box-shadow:0 15px 40px rgba(0,0,0,0.08);
+max-width:520px;
+padding:40px;
+border-radius:18px;
+box-shadow:0 20px 50px rgba(0,0,0,0.2);
 }
 
 h1{
@@ -42,8 +43,8 @@ margin-bottom:6px;
 
 .subtitle{
 color:#666;
-margin-bottom:25px;
 font-size:14px;
+margin-bottom:25px;
 }
 
 .progress{
@@ -51,78 +52,59 @@ height:6px;
 background:#eee;
 border-radius:20px;
 overflow:hidden;
-margin-bottom:25px;
+margin-bottom:30px;
 }
 
 .bar{
 height:100%;
 width:0%;
 background:#6366f1;
-transition:.3s;
+transition:.4s;
 }
 
 .question{
-margin-bottom:28px;
+font-size:18px;
+margin-bottom:25px;
 }
 
-.question h3{
-font-size:16px;
-margin-bottom:12px;
-font-weight:500;
-}
-
-.option{
+.options button{
 display:block;
-padding:10px 14px;
-border:1px solid #e5e7eb;
-border-radius:8px;
-margin-bottom:8px;
-cursor:pointer;
-transition:.2s;
-font-size:14px;
-}
-
-.option:hover{
-background:#f1f5f9;
-}
-
-.option input{
-margin-right:8px;
-}
-
-button{
 width:100%;
-padding:14px;
-background:#6366f1;
-border:none;
-color:white;
-font-size:15px;
-border-radius:10px;
+padding:12px;
+margin-bottom:10px;
+border-radius:8px;
+border:1px solid #ddd;
+background:white;
 cursor:pointer;
-margin-top:10px;
+font-size:14px;
 transition:.2s;
 }
 
-button:hover{
-opacity:.9;
+.options button:hover{
+background:#f3f4ff;
+border-color:#6366f1;
 }
 
 .result{
-margin-top:20px;
-padding:18px;
-background:#eef2ff;
-border-radius:10px;
-font-size:14px;
-}
-
-.footer{
-margin-top:15px;
-font-size:11px;
-color:#777;
 text-align:center;
 }
 
+.result h2{
+margin-bottom:15px;
+}
+
+.restart{
+margin-top:20px;
+background:#6366f1;
+color:white;
+border:none;
+padding:12px 18px;
+border-radius:8px;
+cursor:pointer;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -136,17 +118,7 @@ text-align:center;
 <div class="bar" id="bar"></div>
 </div>
 
-<form id="quiz">
-<div id="questions"></div>
-
-<button type="button" onclick="calc()">Ver resultado</button>
-</form>
-
-<div id="result"></div>
-
-<p class="footer">
-Este teste é apenas informativo e não substitui avaliação profissional para sintomas de :contentReference[oaicite:0]{index=0}.
-</p>
+<div id="app"></div>
 
 </div>
 
@@ -180,74 +152,96 @@ const perguntas=[
 "Menos interesse social",
 "Dificuldade em aproveitar momentos",
 "Sinto que nada melhora",
-"Dificuldade em levantar",
+"Dificuldade em levantar pela manhã",
 "Perdi interesse em hobbies",
-"Sinto-me esgotado"
+"Sinto-me emocionalmente esgotado"
 ];
 
-const qDiv=document.getElementById("questions");
+let atual=0;
+let pontuacao=0;
+
+const app=document.getElementById("app");
 const bar=document.getElementById("bar");
 
-perguntas.forEach((p,i)=>{
+function mostrarPergunta(){
 
-let d=document.createElement("div");
-d.className="question";
+bar.style.width=((atual/perguntas.length)*100)+"%";
 
-d.innerHTML=`
-<h3>${i+1}. ${p}</h3>
+app.innerHTML=`
 
-<label class="option"><input type="radio" name="q${i}" value="0" onclick="progress()">Nunca</label>
-<label class="option"><input type="radio" name="q${i}" value="1" onclick="progress()">Raramente</label>
-<label class="option"><input type="radio" name="q${i}" value="2" onclick="progress()">Frequentemente</label>
-<label class="option"><input type="radio" name="q${i}" value="3" onclick="progress()">Quase sempre</label>
+<div class="question">
+${atual+1}. ${perguntas[atual]}
+</div>
+
+<div class="options">
+<button onclick="responder(0)">Nunca</button>
+<button onclick="responder(1)">Raramente</button>
+<button onclick="responder(2)">Frequentemente</button>
+<button onclick="responder(3)">Quase sempre</button>
+</div>
+
 `;
 
-qDiv.appendChild(d);
-
-});
-
-function progress(){
-
-let answered=0;
-
-for(let i=0;i<30;i++){
-if(document.querySelector(`input[name="q${i}"]:checked`)){
-answered++;
-}
 }
 
-bar.style.width=(answered/30*100)+"%";
+function responder(valor){
 
-}
+pontuacao+=valor;
+atual++;
 
-function calc(){
+if(atual<perguntas.length){
 
-let total=0;
+mostrarPergunta();
 
-for(let i=0;i<30;i++){
+}else{
 
-let r=document.querySelector(`input[name="q${i}"]:checked`);
+mostrarResultado();
 
-if(r){
-total+=parseInt(r.value);
 }
 
 }
 
-let text="";
+function mostrarResultado(){
 
-if(total<=20){
-text="Poucos sinais de sofrimento emocional.";
+bar.style.width="100%";
+
+let texto="";
+
+if(pontuacao<=20){
+texto="Poucos sinais de sofrimento emocional.";
 }
-else if(total<=45){
-text="Alguns sinais de alerta emocional.";
+else if(pontuacao<=45){
+texto="Alguns sinais de alerta emocional.";
 }
-else if(total<=65){
-text="Possíveis sinais de sofrimento emocional.";
+else if(pontuacao<=65){
+texto="Possíveis sinais de sofrimento emocional.";
 }
 else{
-text="Nível elevado de sintomas. Considere procurar ajuda profissional.";
+texto="Nível elevado de sintomas. Considere procurar ajuda profissional.";
 }
 
-document.g
+app.innerHTML=`
+
+<div class="result">
+
+<h2>Resultado</h2>
+
+<p><strong>Pontuação:</strong> ${pontuacao}</p>
+
+<p style="margin-top:10px">${texto}</p>
+
+<button class="restart" onclick="location.reload()">Refazer teste</button>
+
+</div>
+
+`;
+
+}
+
+mostrarPergunta();
+
+</script>
+
+</body>
+</html>
 ```
