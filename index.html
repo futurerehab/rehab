@@ -1,54 +1,40 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Teste de Humor</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Teste de Autoavaliação de Humor</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Inter, sans-serif;
-}
-
 body{
-height:100vh;
+font-family: Arial, Helvetica, sans-serif;
+background:#f4f6fb;
 display:flex;
-align-items:center;
 justify-content:center;
-background:linear-gradient(135deg,#6366f1,#8b5cf6);
-padding:20px;
+align-items:center;
+height:100vh;
+margin:0;
 }
 
-.card{
+.container{
+width:700px;
 background:white;
-width:100%;
-max-width:520px;
 padding:40px;
-border-radius:18px;
-box-shadow:0 20px 50px rgba(0,0,0,0.2);
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
 h1{
-font-size:26px;
-margin-bottom:6px;
+margin-bottom:5px;
 }
 
 .subtitle{
 color:#666;
-font-size:14px;
 margin-bottom:25px;
 }
 
 .progress{
-height:6px;
+height:8px;
 background:#eee;
 border-radius:20px;
 overflow:hidden;
@@ -58,12 +44,12 @@ margin-bottom:30px;
 .bar{
 height:100%;
 width:0%;
-background:#6366f1;
-transition:.4s;
+background:#5b6cff;
+transition:0.3s;
 }
 
 .question{
-font-size:18px;
+font-size:20px;
 margin-bottom:25px;
 }
 
@@ -72,35 +58,39 @@ display:block;
 width:100%;
 padding:12px;
 margin-bottom:10px;
-border-radius:8px;
 border:1px solid #ddd;
 background:white;
+border-radius:8px;
 cursor:pointer;
-font-size:14px;
-transition:.2s;
+font-size:15px;
 }
 
 .options button:hover{
-background:#f3f4ff;
-border-color:#6366f1;
+background:#f2f4ff;
+}
+
+.nav{
+margin-top:20px;
+display:flex;
+justify-content:space-between;
+}
+
+.nav button{
+padding:10px 16px;
+border:none;
+background:#5b6cff;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.nav button:disabled{
+background:#ccc;
+cursor:default;
 }
 
 .result{
 text-align:center;
-}
-
-.result h2{
-margin-bottom:15px;
-}
-
-.restart{
-margin-top:20px;
-background:#6366f1;
-color:white;
-border:none;
-padding:12px 18px;
-border-radius:8px;
-cursor:pointer;
 }
 
 </style>
@@ -109,7 +99,7 @@ cursor:pointer;
 
 <body>
 
-<div class="card">
+<div class="container">
 
 <h1>Autoavaliação de Humor</h1>
 <p class="subtitle">Responda pensando nas últimas duas semanas.</p>
@@ -158,12 +148,12 @@ const perguntas=[
 ];
 
 let atual=0;
-let pontuacao=0;
+let respostas=new Array(perguntas.length).fill(null);
 
 const app=document.getElementById("app");
 const bar=document.getElementById("bar");
 
-function mostrarPergunta(){
+function render(){
 
 bar.style.width=((atual/perguntas.length)*100)+"%";
 
@@ -174,46 +164,67 @@ ${atual+1}. ${perguntas[atual]}
 </div>
 
 <div class="options">
-<button onclick="responder(0)">Nunca</button>
-<button onclick="responder(1)">Raramente</button>
-<button onclick="responder(2)">Frequentemente</button>
-<button onclick="responder(3)">Quase sempre</button>
+
+<button onclick="select(0)">Nunca</button>
+<button onclick="select(1)">Raramente</button>
+<button onclick="select(2)">Frequentemente</button>
+<button onclick="select(3)">Quase sempre</button>
+
+</div>
+
+<div class="nav">
+
+<button onclick="prev()" ${atual==0?"disabled":""}>Anterior</button>
+
+<button onclick="next()">Próxima</button>
+
 </div>
 
 `;
 
 }
 
-function responder(valor){
+function select(v){
+respostas[atual]=v;
+}
 
-pontuacao+=valor;
+function next(){
+
+if(respostas[atual]==null){
+alert("Responda antes de continuar");
+return;
+}
+
 atual++;
 
-if(atual<perguntas.length){
-
-mostrarPergunta();
-
+if(atual>=perguntas.length){
+resultado();
 }else{
-
-mostrarResultado();
-
+render();
 }
 
 }
 
-function mostrarResultado(){
+function prev(){
+atual--;
+render();
+}
 
-bar.style.width="100%";
+function resultado(){
+
+let total=0;
+
+respostas.forEach(v=>total+=v);
 
 let texto="";
 
-if(pontuacao<=20){
+if(total<=20){
 texto="Poucos sinais de sofrimento emocional.";
 }
-else if(pontuacao<=45){
+else if(total<=45){
 texto="Alguns sinais de alerta emocional.";
 }
-else if(pontuacao<=65){
+else if(total<=65){
 texto="Possíveis sinais de sofrimento emocional.";
 }
 else{
@@ -226,19 +237,21 @@ app.innerHTML=`
 
 <h2>Resultado</h2>
 
-<p><strong>Pontuação:</strong> ${pontuacao}</p>
+<p>Pontuação: <strong>${total}</strong></p>
 
-<p style="margin-top:10px">${texto}</p>
+<p>${texto}</p>
 
-<button class="restart" onclick="location.reload()">Refazer teste</button>
+<button onclick="location.reload()">Refazer teste</button>
 
 </div>
 
 `;
 
+bar.style.width="100%";
+
 }
 
-mostrarPergunta();
+render();
 
 </script>
 
